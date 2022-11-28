@@ -6,15 +6,19 @@
 ##
 
 SRC	=	source/main.c\
-		source/file_io.c
+		source/file_io.c\
+		source/huffman_node_array.c\
+		source/huffman_node.c\
+		source/huffman_tree.c\
+		source/byte_occurence.c\
 
 OBJ	=	$(SRC:.c=.o)
 
-NAME	=	huffman
+NAME	=	huff
 
 CFLAGS += -Wall -Wextra
 
-CPPFLAGS	+=	-Iinclude
+CPPFLAGS	+=	-Iinclude -g
 
 all: $(NAME)
 

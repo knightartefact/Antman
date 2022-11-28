@@ -6,8 +6,8 @@
 */
 
 #include "huffman_tree.h"
-#include "stdlib.h"
-#include "stdio.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 int init_huffman_tree(struct huffman_tree_s* tree)
 {

@@ -12,9 +12,12 @@
 struct huffman_node_s
 {
     uint64_t occurrence;
-    char value;
+    uint8_t value;
     struct huffman_node_s* left;
     struct huffman_node_s* right;
 };
+
+struct huffman_node_s* create_node(uint64_t occurence, char value, struct huffman_node_s* left, struct huffman_node_s* right);
+int init_huffman_node(struct huffman_node_s* node);
 
 #endif /* !HUFFMAN_NODE_H_ */

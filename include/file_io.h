@@ -7,7 +7,7 @@
 
 #ifndef FILE_IO_H_
 #define FILE_IO_H_
-#include "stdio.h"
+#include <stdio.h>
 
 struct file_io_s
 {

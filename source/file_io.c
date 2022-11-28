@@ -6,8 +6,8 @@
 */
 
 #include "file_io.h"
-#include "stdlib.h"
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
 
 FILE* open_file(char *filepath, char *modes)
 {
@@ -48,12 +48,13 @@ char *read_file(FILE* file)
     {
         printf("Couldn't read file in it's entirity\n");
     }
+    buffer[file_size] = 0;
     return buffer;
 }
 
 struct file_io_s* create_file_io(void)
 {
-    struct file_io_s* file_io = malloc(sizeof(struct file_io_s*));
+    struct file_io_s* file_io = malloc(sizeof(struct file_io_s));
 
     if (!file_io)
     {
