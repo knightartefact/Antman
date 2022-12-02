@@ -26,5 +26,6 @@ int init_occ_array(struct occ_array_s* array);
 struct occ_array_s* create_occ_array(void);
 void occ_array_add(uint8_t byte, struct occ_array_s* array);
 void occ_pop_end(struct byte_occurence_s* array);
+void free_occ_array(struct occ_array_s *array);
 
 #endif /* !BYTE_OCCURENCE_H_ */

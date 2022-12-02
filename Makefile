@@ -11,10 +11,11 @@ SRC	=	source/main.c\
 		source/huffman_node.c\
 		source/huffman_tree.c\
 		source/byte_occurence.c\
+		source/huffman_node_list.c\
 
 OBJ	=	$(SRC:.c=.o)
 
-NAME	=	huff
+NAME	=	huff_compress
 
 CFLAGS += -Wall -Wextra
 

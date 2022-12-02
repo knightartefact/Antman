@@ -42,7 +42,16 @@ void node_array_add(struct huffman_node_s new_node, struct huffman_node_array_s*
     array->size += 1;
 }
 
-void node_array_pop(struct huffman_node_array_s* array)
+void node_array_pop(struct huffman_node_array_s* array, int index)
 {
+    if ((uint64_t)index > array->size)
+    {
+        printf("Node array index out of range\n");
+        return;
+    }
+    for (uint64_t i = index; i < array->size - 1; i++)
+    {
+        array->data[i] = array->data[i + 1];
+    }
     array->size--;
 }

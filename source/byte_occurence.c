@@ -61,3 +61,8 @@ void occ_array_pop(struct occ_array_s* array)
 {
     array->size--;
 }
+
+void free_occ_array(struct occ_array_s *array)
+{
+    free (array->data);
+}

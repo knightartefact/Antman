@@ -20,6 +20,6 @@ struct huffman_node_array_s
 int init_node_array(struct huffman_node_array_s* array);
 struct huffman_node_array_s* create_node_array(void);
 void node_array_add(struct huffman_node_s new_node, struct huffman_node_array_s* array);
-void node_array_pop(struct huffman_node_array_s* array);
+void node_array_pop(struct huffman_node_array_s* array, int index);
 
 #endif /* !HUFFMAN_NOE_ARRAY_H_ */

@@ -9,6 +9,7 @@
 #include "huffman_tree.h"
 #include "huffman_node_array.h"
 #include "byte_occurence.h"
+#include "huffman_node_list.h"
 #include <unistd.h>
 
 int main(int ac, char** av)
@@ -18,6 +19,7 @@ int main(int ac, char** av)
 
     if (!file_io || ac < 2)
     {
+        printf("Please enter a valid filename\n");
         return 1;
     }
     init_file_io(file_io);
@@ -35,9 +37,20 @@ int main(int ac, char** av)
     {
         occ_array_add(file_io->file_buffer[buf_i], occurence_array);
     }
-    for (uint64_t i = 0; i < occurence_array->size; i++)
+
+    struct node_list_s* node_list = create_list();
+
+    for (uint64_t i = 0; i < occurence_array->size - 1; i++)
     {
-        printf("%c : %ld\n", occurence_array->data[i].byte, occurence_array->data[i].occurence);
+        struct huffman_node_s node;
+
+        node.left = NULL;
+        node.right = NULL;
+        node.occurrence = occurence_array->data[i].occurence;
+        node.value = occurence_array->data[i].byte;
+        list_push_front(node_list, node);
     }
+
+    list_print_data(node_list);
     return 0;
 }
