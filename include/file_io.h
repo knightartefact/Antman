@@ -15,12 +15,14 @@ struct file_io_s
     char *filepath;
     char* file_buffer;
 };
+typedef struct file_io_s file_io_t;
 
-FILE* open_file(char *filepath, char *modes);
-int get_file_size(FILE* file);
-char *read_file(FILE* file);
-struct file_io_s* create_file_io(void);
-void init_file_io(struct file_io_s* file_io);
-int load_file(char* filepath, struct file_io_s* file_io_out);
+FILE* file_io_open_file(char *filepath, char *modes);
+int file_io_get_size(FILE* file);
+char *file_io_read_file(FILE* file);
+file_io_t* file_io_create(void);
+void file_io_init(file_io_t* file_io);
+int file_io_load_file(char* filepath, file_io_t* file_io_out);
+void file_io_free(file_io_t **file_io);
 
 #endif /* !FILE_IO_H_ */
