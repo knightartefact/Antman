@@ -9,23 +9,16 @@
 #define BYTE_OCCURENCE_H_
 #include "inttypes.h"
 
+typedef struct GList_s GList_t;
+
 struct byte_occurence_s
 {
     uint8_t byte;
     uint64_t occurence;
 };
 
-struct occ_array_s
-{
-    uint64_t capacity;
-    uint64_t size;
-    struct byte_occurence_s* data;
-};
+typedef struct byte_occurence_s byte_occurence_t;
 
-int init_occ_array(struct occ_array_s* array);
-struct occ_array_s* create_occ_array(void);
-void occ_array_add(uint8_t byte, struct occ_array_s* array);
-void occ_pop_end(struct byte_occurence_s* array);
-void free_occ_array(struct occ_array_s *array);
+void occurence_add(uint8_t byte, GList_t *occ_list);
 
 #endif /* !BYTE_OCCURENCE_H_ */

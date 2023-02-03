@@ -7,7 +7,6 @@
 
 SRC	=	source/main.c\
 		source/file_io.c\
-		source/huffman_node_array.c\
 		source/huffman_node.c\
 		source/huffman_tree.c\
 		source/byte_occurence.c\
@@ -19,7 +18,7 @@ NAME	=	huff_compress
 
 CFLAGS += -Wall -Wextra
 
-CPPFLAGS	+=	-Iinclude -g
+CPPFLAGS	+=	-Iinclude -g3
 
 all: $(NAME)
 

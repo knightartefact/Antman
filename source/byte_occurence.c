@@ -10,59 +10,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "generic_list.h"
 
-int init_occ_array(struct occ_array_s* array)
-{
-    int capacity = 8;
-    array->data = malloc(sizeof(struct byte_occurence_s) * capacity);
-    array->capacity = capacity;
-    array->size = 0;
-    return 0;
-}
-
-struct occ_array_s* create_occ_array(void)
-{
-    struct occ_array_s* array = malloc(sizeof(struct occ_array_s));
-
-    if (!array)
-    {
-        printf("Couldn't allocate occurence node array memory\n");
-        return NULL;
-    }
-    return array;
-}
-
-void occ_array_add(uint8_t byte, struct occ_array_s* array)
+void occurence_add(uint8_t byte, GList_t *occ_list)
 {
     bool occurence_exists = false;
+    GNode_t *current = NULL;
 
-    if (array->size >= array->capacity)
+    if (!occ_list)
+        return;
+    current = occ_list->head->next;
+    while (current && current != occ_list->tail)
     {
-        array->capacity *= 2;
-        array->data = realloc(array->data, array->capacity * sizeof(struct byte_occurence_s));
-    }
-    for (uint64_t i = 0; i < array->size; i++)
-    {
-        if (array->data[i].byte == byte)
+        if (current->data == NULL)
+            break;
+        byte_occurence_t *current_data = (byte_occurence_t *)(current->data);
+        if (current_data->byte == byte)
         {
-            array->data[i].occurence += 1;
+            current_data->occurence += 1;
             occurence_exists = true;
             break;
         }
+        current = current->next;
     }
     if(!occurence_exists)
     {
-        array->data[array->size] = (struct byte_occurence_s){byte, 1};
-        array->size += 1;
+        byte_occurence_t new_data = {.byte = byte, .occurence = 1};
+        glist_pushback(occ_list, &new_data);
     }
-}
-
-void occ_array_pop(struct occ_array_s* array)
-{
-    array->size--;
-}
-
-void free_occ_array(struct occ_array_s *array)
-{
-    free (array->data);
 }

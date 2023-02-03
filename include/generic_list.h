@@ -73,7 +73,7 @@ void glist_print(GList_t *list, void(*print_function)(void *));
         GNode_t* tail = gnode_create(chunk_size, NULL);
         GList_t* list = malloc(sizeof(GList_t));
 
-        if (!list) {
+        if (!list || !head || !tail) {
             free(head);
             free(tail);
             return NULL;

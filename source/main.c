@@ -5,9 +5,7 @@
 ** main
 */
 #include "file_io.h"
-#include "huffman.h"
 #include "huffman_tree.h"
-#include "huffman_node_array.h"
 #include "byte_occurence.h"
 #include "huffman_node_list.h"
 #include <unistd.h>
@@ -45,6 +43,8 @@ int main(int ac, char** av)
 
     GList_t *occurences = glist_new(sizeof(struct byte_occurence_s));
 
+    if (!occurences)
+        return -1;
     // struct huffman_tree_s* huffman_tree = create_tree();
     // init_huffman_tree(huffman_tree);
     // struct occ_array_s* occurence_array = create_occ_array();
@@ -52,15 +52,9 @@ int main(int ac, char** av)
 
     for (int buf_i = 0; file_io->file_buffer[buf_i]; buf_i++)
     {
-        struct byte_occurence_s current_occ;
-
-        current_occ.byte = file_io->file_buffer[buf_i];
-        current_occ.occurence = 1;
-        glist_pushback(occurences, &current_occ);
+        occurence_add(file_io->file_buffer[buf_i], occurences);
     }
-
     glist_print(occurences, occurence_print);
-
     glist_destroy(&occurences);
     file_io_free(&file_io);
 
