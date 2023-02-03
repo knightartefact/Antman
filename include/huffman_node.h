@@ -9,15 +9,18 @@
 #define HUFFMAN_NODE_H_
 #include <stdint.h>
 
+typedef struct huffman_node_s huff_node_t;
+
 struct huffman_node_s
 {
     uint64_t occurrence;
     uint8_t value;
-    struct huffman_node_s* left;
-    struct huffman_node_s* right;
+    huff_node_t* left;
+    huff_node_t* right;
 };
 
-struct huffman_node_s* create_node(uint64_t occurence, char value, struct huffman_node_s* left, struct huffman_node_s* right);
-int init_huffman_node(struct huffman_node_s* node);
+huff_node_t* huff_node_create(uint64_t occurence, char value, huff_node_t* left, huff_node_t* right);
+void huff_node_print(const void *node);
+int huff_node_comp(const void *lhs, const void *rhs);
 
 #endif /* !HUFFMAN_NODE_H_ */

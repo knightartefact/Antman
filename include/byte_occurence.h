@@ -20,5 +20,7 @@ struct byte_occurence_s
 typedef struct byte_occurence_s byte_occurence_t;
 
 void occurence_add(uint8_t byte, GList_t *occ_list);
+void occurence_print(const void *data);
+int occurence_comp(const void *lhs, const void *rhs);
 
 #endif /* !BYTE_OCCURENCE_H_ */

@@ -5,9 +5,10 @@
 ** file_io
 */
 
-#include "file_io.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include "file_io.h"
 
 FILE* file_io_open_file(char *filepath, char *modes)
 {
@@ -16,7 +17,7 @@ FILE* file_io_open_file(char *filepath, char *modes)
     file_ptr = fopen(filepath, modes);
     if (!file_ptr)
     {
-        printf("Couldn't open file\n");
+        perror(filepath);
         return NULL;
     }
     return file_ptr;
@@ -40,13 +41,13 @@ char *file_io_read_file(FILE* file)
 
     if (!buffer)
     {
-        printf("Couldn't allocate file buffer memory\n");
+        perror("Couldn't allocate file buffer memory");
         return NULL;
     }
     bytes_read = fread(buffer, sizeof(char), file_size, file);
     if (bytes_read != file_size)
     {
-        printf("Couldn't read file in it's entirity\n");
+        perror("Couldn't read file in it's entirity");
     }
     buffer[file_size] = 0;
     return buffer;
@@ -58,7 +59,7 @@ file_io_t* file_io_create(void)
 
     if (!file_io)
     {
-        printf("Couldn't allocate file_io memory\n");
+        perror("Couldn't allocate file_io memory");
         return NULL;
     }
     file_io_init(file_io);
@@ -78,7 +79,6 @@ int file_io_load_file(char* filepath, file_io_t* file_io_out)
     file_io_out->file_ptr = file_io_open_file(filepath, "r");
     if (!file_io_out->file_ptr || !file_io_out->filepath)
     {
-        fclose(file_io_out->file_ptr);
         return -1;
     }
     file_io_out->file_buffer = file_io_read_file(file_io_out->file_ptr);

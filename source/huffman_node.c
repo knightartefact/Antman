@@ -5,12 +5,12 @@
 ** huffman_node
 */
 
-#include "huffman_node.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "huffman_node.h"
 
-int init_huffman_node(struct huffman_node_s* node)
+int huff_node_init(huff_node_t* node)
 {
     node->occurrence = 0;
     node->value = 0;
@@ -19,9 +19,9 @@ int init_huffman_node(struct huffman_node_s* node)
     return 0;
 }
 
-struct huffman_node_s* create_node(uint64_t occurence, char value, struct huffman_node_s* left, struct huffman_node_s* right)
+huff_node_t* huff_node_create(uint64_t occurence, char value, huff_node_t* left, huff_node_t* right)
 {
-    struct huffman_node_s* node = malloc(sizeof(struct huffman_node_s*));
+    huff_node_t* node = malloc(sizeof(huff_node_t));
 
     if (!node)
     {
@@ -33,4 +33,26 @@ struct huffman_node_s* create_node(uint64_t occurence, char value, struct huffma
     node->left = left;
     node->right = right;
     return node;
+}
+
+void huff_node_print(const void *node)
+{
+    huff_node_t* cast_node = (huff_node_t *)node;
+    char str[3] = "\\n";
+    if (!cast_node)
+        return;
+    if (cast_node->value != '\n') {
+        str[0] = (char)cast_node->value;
+        str[1] = 0;
+    }
+    printf("[%s] -> %ld\n", str, cast_node->occurrence);
+}
+
+int huff_node_comp(const void *lhs, const void *rhs)
+{
+    huff_node_t *h_lhs = (huff_node_t *)lhs;
+    huff_node_t *h_rhs = (huff_node_t *)rhs;
+    int result = h_lhs->occurrence - h_rhs->occurrence;
+
+    return result;
 }

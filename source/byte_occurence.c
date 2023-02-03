@@ -5,11 +5,11 @@
 ** byte_occurence
 */
 
-#include "byte_occurence.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "byte_occurence.h"
 #include "generic_list.h"
 
 void occurence_add(uint8_t byte, GList_t *occ_list)
@@ -38,4 +38,25 @@ void occurence_add(uint8_t byte, GList_t *occ_list)
         byte_occurence_t new_data = {.byte = byte, .occurence = 1};
         glist_pushback(occ_list, &new_data);
     }
+}
+
+void occurence_print(const void *data)
+{
+    struct byte_occurence_s *occ = (struct byte_occurence_s *)data;
+    char string[3] = "\\n";
+
+    if ((char)occ->byte != '\n') {
+        string[0] = (char)occ->byte;
+        string[1] = 0;
+        string[2] = 0;
+    }
+    printf("[%s] -> %ld\n", string, occ->occurence);
+}
+
+int occurence_comp(const void *lhs, const void *rhs)
+{
+    byte_occurence_t *occ_lhs = (byte_occurence_t *)lhs;
+    byte_occurence_t *occ_rhs = (byte_occurence_t *)rhs;
+    int result = occ_lhs->occurence - occ_rhs->occurence;
+    return result;
 }
