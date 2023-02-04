@@ -10,7 +10,8 @@ SRC	=	source/huffman.c\
 		source/huffman_node.c\
 		source/huffman_tree.c\
 		source/byte_occurence.c\
-		source/pair.c
+		source/pair.c\
+		source/bitstream.c
 
 OBJ	=	$(SRC:.c=.o)
 

@@ -128,7 +128,6 @@ static void _huff_tree_print_from_root(huff_node_t *root)
         printf("right child: %c -> %ld\n", root->right->value, root->right->occurrence);
     _huff_tree_print_from_root(root->left);
     _huff_tree_print_from_root(root->right);
-
 }
 
 int huff_tree_print(huff_tree_t *tree)

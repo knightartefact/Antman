@@ -12,6 +12,7 @@
 #include "byte_occurence.h"
 #include "generic_list.h"
 #include "pair.h"
+#include "bitstream.h"
 
 int main(int ac, char** av)
 {
@@ -44,5 +45,6 @@ int main(int ac, char** av)
     glist_destroy(&codes_list, pair_destroy);
     huff_tree_destroy(&huffman_tree);
     file_io_free(&file_io);
-    return 0;
 }
+
+
