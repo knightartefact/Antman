@@ -19,5 +19,8 @@ struct huffman_tree_s
 
 huff_tree_t* huff_tree_create(void);
 int huff_tree_build(GList_t *occurence_list, huff_tree_t *tree);
+int huff_tree_generate_codes(GList_t *codes, huff_node_t *root);
+int huff_tree_print(huff_tree_t *tree);
+void huff_tree_destroy(huff_tree_t **tree);
 
 #endif /* !HUFFMAN_TREE_H_ */

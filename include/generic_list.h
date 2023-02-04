@@ -29,7 +29,7 @@ struct GList_s {
 GNode_t* gnode_create(size_t chunk_size, void *data);
 void gnode_destroy(GNode_t **node);
 GList_t* glist_new(size_t chunk_size);
-void glist_destroy(GList_t **list);
+void glist_destroy(GList_t **list, void(*dtor)(void *));
 size_t glist_size(GList_t *list);
 int glist_pushback(GList_t *list, void *elem);
 void *glist_popback(GList_t *list);

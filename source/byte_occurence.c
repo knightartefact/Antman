@@ -60,3 +60,7 @@ int occurence_comp(const void *lhs, const void *rhs)
     int result = occ_lhs->occurence - occ_rhs->occurence;
     return result;
 }
+
+void occurence_destroy(void *occ)
+{
+}

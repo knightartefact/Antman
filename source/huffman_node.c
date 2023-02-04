@@ -56,3 +56,7 @@ int huff_node_comp(const void *lhs, const void *rhs)
 
     return result;
 }
+
+void huff_node_destroy(void *node)
+{
+}

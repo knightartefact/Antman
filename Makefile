@@ -10,6 +10,7 @@ SRC	=	source/huffman.c\
 		source/huffman_node.c\
 		source/huffman_tree.c\
 		source/byte_occurence.c\
+		source/pair.c
 
 OBJ	=	$(SRC:.c=.o)
 
@@ -19,7 +20,7 @@ LDFLAGS	=	-L. -lgencds
 
 CFLAGS = -Wall -Wextra
 
-CPPFLAGS	=	-Iinclude -g
+CPPFLAGS	=	-Iinclude -g3
 
 all: $(NAME)
 
