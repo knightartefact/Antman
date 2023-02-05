@@ -13,25 +13,18 @@
 #include "generic_list.h"
 #include "pair.h"
 
-int huff_tree_init(huff_tree_t* tree)
+static void _huff_tree_print_from_root(huff_node_t *root)
 {
-    tree->root = NULL;
-    return 0;
-}
-
-huff_tree_t* huff_tree_create(void)
-{
-    huff_tree_t* tree = malloc(sizeof(huff_tree_t));
-
-    if (!tree) {
-        perror("Couldn't allocate tree memory");
-        return NULL;
+    if (!root) {
+        return;
     }
-    if (huff_tree_init(tree)) {
-        free(tree);
-        return NULL;
-    }
-    return tree;
+    printf("Parent: %c -> %ld\n", root->value, root->occurrence);
+    if (root->left)
+        printf("left child: %c -> %ld\n", root->left->value, root->left->occurrence);
+    if (root->right)
+        printf("right child: %c -> %ld\n", root->right->value, root->right->occurrence);
+    _huff_tree_print_from_root(root->left);
+    _huff_tree_print_from_root(root->right);
 }
 
 static GList_t *_copy_occurences_to_tree(GList_t *l_occ, GList_t *l_nodes)
@@ -53,35 +46,6 @@ static GList_t *_copy_occurences_to_tree(GList_t *l_occ, GList_t *l_nodes)
         current = current->next;
     }
     return l_nodes;
-}
-
-int huff_tree_build(GList_t *l_occ, huff_tree_t *tree)
-{
-    GList_t *node_list = glist_new(sizeof(huff_node_t));
-
-    _copy_occurences_to_tree(l_occ, node_list);
-
-    while (node_list->size > 1) {
-
-        huff_node_t *first_node = (huff_node_t *)glist_popfront(node_list);
-        huff_node_t *second_node = (huff_node_t *)glist_popfront(node_list);
-        if (!first_node || !second_node) {
-            return -1;
-        }
-        size_t total_occ = first_node->occurrence + second_node->occurrence;
-        huff_node_t *result = huff_node_create(total_occ, '~', first_node, second_node);
-        if (!result)
-            return -1;
-        glist_pushback(node_list, result);
-        glist_sort(node_list, huff_node_comp);
-        free(result);
-    }
-    huff_node_t *root = NULL;
-    if ((root = (huff_node_t *)(glist_popfront(node_list))) == NULL)
-        return 1;
-    tree->root = root;
-    glist_destroy(&node_list, huff_node_destroy);
-    return 0;
 }
 
 static int is_leaf(huff_node_t *node)
@@ -108,6 +72,64 @@ static int _huff_tree_generate_codes(GList_t *codes, char string[], int top, huf
     return 0;
 }
 
+static void _huff_tree_destroy_recursive(huff_node_t *root)
+{
+    if (!root)
+        return;
+    _huff_tree_destroy_recursive(root->left);
+    _huff_tree_destroy_recursive(root->right);
+    free(root);
+}
+
+int huff_tree_init(huff_tree_t* tree)
+{
+    tree->root = NULL;
+    return 0;
+}
+
+huff_tree_t* huff_tree_create(void)
+{
+    huff_tree_t* tree = malloc(sizeof(huff_tree_t));
+
+    if (!tree) {
+        perror("Couldn't allocate tree memory");
+        return NULL;
+    }
+    if (huff_tree_init(tree)) {
+        free(tree);
+        return NULL;
+    }
+    return tree;
+}
+
+int huff_tree_build(GList_t *l_occ, huff_tree_t *tree)
+{
+    GList_t *node_list = glist_new(sizeof(huff_node_t));
+    huff_node_t *root = NULL;
+
+    _copy_occurences_to_tree(l_occ, node_list);
+    while (node_list->size > 1) {
+
+        huff_node_t *first_node = (huff_node_t *)glist_popfront(node_list);
+        huff_node_t *second_node = (huff_node_t *)glist_popfront(node_list);
+        if (!first_node || !second_node) {
+            return -1;
+        }
+        size_t total_occ = first_node->occurrence + second_node->occurrence;
+        huff_node_t *result = huff_node_create(total_occ, '~', first_node, second_node);
+        if (!result)
+            return -1;
+        glist_pushback(node_list, result);
+        glist_sort(node_list, huff_node_comp);
+        free(result);
+    }
+    if ((root = (huff_node_t *)(glist_popfront(node_list))) == NULL)
+        return -1;
+    tree->root = root;
+    glist_destroy(&node_list, huff_node_destroy);
+    return 0;
+}
+
 int huff_tree_generate_codes(GList_t* codes, huff_node_t *root)
 {
     char string[64];
@@ -116,35 +138,12 @@ int huff_tree_generate_codes(GList_t* codes, huff_node_t *root)
     return 0;
 }
 
-static void _huff_tree_print_from_root(huff_node_t *root)
-{
-    if (!root) {
-        return;
-    }
-    printf("Parent: %c -> %ld\n", root->value, root->occurrence);
-    if (root->left)
-        printf("left child: %c -> %ld\n", root->left->value, root->left->occurrence);
-    if (root->right)
-        printf("right child: %c -> %ld\n", root->right->value, root->right->occurrence);
-    _huff_tree_print_from_root(root->left);
-    _huff_tree_print_from_root(root->right);
-}
-
 int huff_tree_print(huff_tree_t *tree)
 {
     if (!tree->root)
         return -1;
     _huff_tree_print_from_root(tree->root);
     return 0;
-}
-
-static void _huff_tree_destroy_recursive(huff_node_t *root)
-{
-    if (!root)
-        return;
-    _huff_tree_destroy_recursive(root->left);
-    _huff_tree_destroy_recursive(root->right);
-    free(root);
 }
 
 void huff_tree_destroy(huff_tree_t **tree)

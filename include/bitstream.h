@@ -13,24 +13,36 @@
 
 #define MAX_BUFF_SIZE sizeof(uint8_t)*8
 
+static const uint64_t DefaultReadBufSize = 256;
+
 typedef struct bitstream_s bitstream_t;
+typedef struct buffer_s buffer_t;
 
 enum file_mode {
     FILE_READ,
-    FILE_WRITE
+    FILE_WRITE,
+    UNKNOWN_MODE,
+
+    ENUM_SIZE
+};
+
+struct buffer_s {
+    uint8_t *data;
+    uint64_t size;
+    uint16_t pos;
 };
 
 struct bitstream_s {
     FILE *file;
-    uint64_t buffer;
-    short bit_pos;
+    buffer_t buffer;
     enum file_mode mode;
     uint64_t chunk_size;
 };
 
 bitstream_t *bitstream_create(char *filename, char *mode);
 void bitstream_destroy(bitstream_t **stream);
-int bitstream_put_bit(bitstream_t *stream, bool bit);
+int bitstream_write_bit(bitstream_t *stream, bool bit);
+bool bitstream_read_bit(bitstream_t *stream);
 void bitstream_flush(bitstream_t *stream);
 
 #endif /* !BITSTREAM_H_ */

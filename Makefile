@@ -11,7 +11,9 @@ SRC	=	source/huffman.c\
 		source/huffman_tree.c\
 		source/byte_occurence.c\
 		source/pair.c\
-		source/bitstream.c
+		source/bitstream.c\
+		source/huffman_write.c\
+		source/huffman_compressor.c
 
 OBJ	=	$(SRC:.c=.o)
 

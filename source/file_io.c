@@ -33,10 +33,10 @@ int file_io_get_size(FILE* file)
     return size;
 }
 
-char *file_io_read_file(FILE* file)
+uint8_t *file_io_read_file(FILE* file)
 {
     int file_size = file_io_get_size(file);
-    char* buffer = malloc(sizeof(char) * (file_size + 1));
+    uint8_t* buffer = malloc(sizeof(uint8_t) * (file_size + 1));
     int bytes_read = 0;
 
     if (!buffer)
@@ -44,7 +44,7 @@ char *file_io_read_file(FILE* file)
         perror("Couldn't allocate file buffer memory");
         return NULL;
     }
-    bytes_read = fread(buffer, sizeof(char), file_size, file);
+    bytes_read = fread(buffer, sizeof(uint8_t), file_size, file);
     if (bytes_read != file_size)
     {
         perror("Couldn't read file in it's entirity");
@@ -71,6 +71,7 @@ void file_io_init(file_io_t* file_io)
     file_io->file_buffer = NULL;
     file_io->file_ptr = NULL;
     file_io->filepath = NULL;
+    file_io->buf_size = 0;
 }
 
 int file_io_load_file(char* filepath, file_io_t* file_io_out)
@@ -82,6 +83,7 @@ int file_io_load_file(char* filepath, file_io_t* file_io_out)
         return -1;
     }
     file_io_out->file_buffer = file_io_read_file(file_io_out->file_ptr);
+    file_io_out->buf_size = file_io_get_size(file_io_out->file_ptr);
     if (!file_io_out->file_buffer)
     {
         fclose(file_io_out->file_ptr);

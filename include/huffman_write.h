@@ -10,6 +10,7 @@
 #include "file_io.h"
 #include "generic_list.h"
 
-int huffman_write_file(char *filename, GList_t *codes, file_io_t input);
+int huffman_write_file(char *filename, GList_t *codes, file_io_t *input);
+int huffman_write_file_header(FILE *file, GList_t *codes);
 
 #endif /* !HUFFMAN_WRITE_H_ */
