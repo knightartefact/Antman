@@ -12,7 +12,7 @@
 
 static int bitstream_read_file(bitstream_t *stream)
 {
-    file_io_t* io = file_io_create();
+    file_io_t* io = file_io_create(NULL);
     size_t file_size = file_io_get_size(stream->file);
     uint8_t *buffer = NULL;
 
@@ -26,6 +26,7 @@ static int bitstream_read_file(bitstream_t *stream)
     stream->buffer.data = buffer;
     stream->buffer.size = file_size;
     stream->buffer.pos = 0;
+    stream->buffer.bit_pos = (uint8_t)(sizeof(uint8_t) * 8);
     file_io_free(&io);
     return 0;
 }
@@ -51,7 +52,7 @@ static int bitstream_init(bitstream_t *stream, FILE *file, char *mode)
             stream->mode = UNKNOWN_MODE;
             break;
     }
-    if (read_result)
+    if (read_result || !stream->buffer.data)
         return -1;
     return 0;
 }
@@ -100,17 +101,22 @@ int bitstream_write_bit(bitstream_t *stream, bool bit)
     return 0;
 }
 
-bool bitstream_read_bit(bitstream_t *stream)
+int bitstream_read_bit(bitstream_t *stream, uint8_t l_offset)
 {
-    static int bit_pos = (sizeof(uint8_t) * 8) - 1;
     bool bit = 0;
 
-    if (bit_pos < 0) {
-        bit_pos = (sizeof(uint8_t) * 8) - 1;
+    if (stream->buffer.pos >= stream->buffer.size) {
+        return -1;
+    }
+    if (stream->buffer.pos >= stream->buffer.size - 2)
+        if (stream->buffer.bit_pos == 8 - l_offset)
+            return -1;
+    if (stream->buffer.bit_pos == 0) {
+        stream->buffer.bit_pos = (sizeof(uint8_t) * 8);
         stream->buffer.pos++;
     }
-    bit = (stream->buffer.data[stream->buffer.pos]) & (1 << bit_pos);
-    bit_pos--;
+    bit = (stream->buffer.data[stream->buffer.pos]) & (1 << (stream->buffer.bit_pos - 1));
+    stream->buffer.bit_pos--;
     return bit;
 }
 

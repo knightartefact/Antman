@@ -9,6 +9,8 @@
 #define HUFFMAN_TREE_H_
 #include "huffman_node.h"
 
+#define TREE_PRINT_SPACE 5
+
 typedef struct GList_s GList_t;
 typedef struct huffman_tree_s huff_tree_t;
 

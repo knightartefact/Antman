@@ -13,7 +13,10 @@ SRC	=	source/huffman.c\
 		source/pair.c\
 		source/bitstream.c\
 		source/huffman_write.c\
-		source/huffman_compressor.c
+		source/huffman_read.c\
+		source/huffman_compressor.c\
+		source/huffman_decompressor.c\
+		source/stack.c\
 
 OBJ	=	$(SRC:.c=.o)
 

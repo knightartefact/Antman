@@ -53,7 +53,7 @@ uint8_t *file_io_read_file(FILE* file)
     return buffer;
 }
 
-file_io_t* file_io_create(void)
+file_io_t* file_io_create(char *filepath)
 {
     file_io_t* file_io = malloc(sizeof(file_io_t));
 
@@ -63,6 +63,11 @@ file_io_t* file_io_create(void)
         return NULL;
     }
     file_io_init(file_io);
+    if (filepath == NULL) {
+        return file_io;
+    }
+    if (file_io_load_file(filepath, file_io))
+        return NULL;
     return file_io;
 }
 
@@ -74,27 +79,34 @@ void file_io_init(file_io_t* file_io)
     file_io->buf_size = 0;
 }
 
-int file_io_load_file(char* filepath, file_io_t* file_io_out)
+int file_io_load_file(char* filepath, file_io_t* io_out)
 {
-    file_io_out->filepath = strdup(filepath);
-    file_io_out->file_ptr = file_io_open_file(filepath, "r");
-    if (!file_io_out->file_ptr || !file_io_out->filepath)
+    if (io_out->file_buffer) {
+        fclose(io_out->file_ptr);
+        free(io_out->file_buffer);
+        free(io_out->filepath);
+        file_io_init(io_out);
+    }
+    io_out->filepath = strdup(filepath);
+    io_out->file_ptr = file_io_open_file(filepath, "r");
+    if (!io_out->file_ptr || !io_out->filepath)
     {
         return -1;
     }
-    file_io_out->file_buffer = file_io_read_file(file_io_out->file_ptr);
-    file_io_out->buf_size = file_io_get_size(file_io_out->file_ptr);
-    if (!file_io_out->file_buffer)
+    io_out->file_buffer = file_io_read_file(io_out->file_ptr);
+    io_out->buf_size = file_io_get_size(io_out->file_ptr);
+    if (!io_out->file_buffer)
     {
-        fclose(file_io_out->file_ptr);
+        fclose(io_out->file_ptr);
         return -1;
     }
-    fclose(file_io_out->file_ptr);
     return 0;
 }
 
 void file_io_free(file_io_t **file_io)
 {
+    if ((*file_io)->file_ptr)
+        fclose((*file_io)->file_ptr);
     free((*file_io)->filepath);
     free((*file_io)->file_buffer);
     free(*file_io);

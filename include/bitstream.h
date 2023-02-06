@@ -29,7 +29,8 @@ enum file_mode {
 struct buffer_s {
     uint8_t *data;
     uint64_t size;
-    uint16_t pos;
+    uint64_t pos;
+    uint8_t bit_pos;
 };
 
 struct bitstream_s {
@@ -42,7 +43,7 @@ struct bitstream_s {
 bitstream_t *bitstream_create(char *filename, char *mode);
 void bitstream_destroy(bitstream_t **stream);
 int bitstream_write_bit(bitstream_t *stream, bool bit);
-bool bitstream_read_bit(bitstream_t *stream);
+int bitstream_read_bit(bitstream_t *stream, uint8_t l_offset);
 void bitstream_flush(bitstream_t *stream);
 
 #endif /* !BITSTREAM_H_ */

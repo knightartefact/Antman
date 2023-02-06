@@ -13,18 +13,27 @@
 #include "generic_list.h"
 #include "pair.h"
 
-static void _huff_tree_print_from_root(huff_node_t *root)
+static void _huff_tree_print_from_root(huff_node_t *root, int depth)
 {
-    if (!root) {
+    int i;
+    static int rec[1000000];
+
+    if (root == NULL)
         return;
-    }
-    printf("Parent: %c -> %ld\n", root->value, root->occurrence);
-    if (root->left)
-        printf("left child: %c -> %ld\n", root->left->value, root->left->occurrence);
-    if (root->right)
-        printf("right child: %c -> %ld\n", root->right->value, root->right->occurrence);
-    _huff_tree_print_from_root(root->left);
-    _huff_tree_print_from_root(root->right);
+    printf("\t");
+    for (i = 0; i < depth; i++)
+        if (i == depth - 1)
+            printf("%s\u2014\u2014\u2014", rec[depth - 1] ? "\u0371" : "\u221F");
+        else
+            printf("%s   ", rec[i] ? "\u23B8" : "  ");
+    if (root->value < 33 || root->value > 126)
+        printf("%d\n", root->value);
+    else
+        printf("%c\n", root->value);
+    rec[depth] = 1;
+    _huff_tree_print_from_root(root->left, depth + 1);
+    rec[depth] = 0;
+    _huff_tree_print_from_root(root->right, depth + 1);
 }
 
 static GList_t *_copy_occurences_to_tree(GList_t *l_occ, GList_t *l_nodes)
@@ -48,14 +57,9 @@ static GList_t *_copy_occurences_to_tree(GList_t *l_occ, GList_t *l_nodes)
     return l_nodes;
 }
 
-static int is_leaf(huff_node_t *node)
-{
-    return (!node->left && !node->right);
-}
-
 static int _huff_tree_generate_codes(GList_t *codes, char string[], int top, huff_node_t *root)
 {
-    if (is_leaf(root)) {
+    if (huff_node_is_leaf(root)) {
         string[top] = 0;
         pair_t data_pair = {.value = root->value,
                             .compressed = strdup(string)};
@@ -116,7 +120,7 @@ int huff_tree_build(GList_t *l_occ, huff_tree_t *tree)
             return -1;
         }
         size_t total_occ = first_node->occurrence + second_node->occurrence;
-        huff_node_t *result = huff_node_create(total_occ, '~', first_node, second_node);
+        huff_node_t *result = huff_node_create(total_occ, '0', first_node, second_node);
         if (!result)
             return -1;
         glist_pushback(node_list, result);
@@ -142,7 +146,7 @@ int huff_tree_print(huff_tree_t *tree)
 {
     if (!tree->root)
         return -1;
-    _huff_tree_print_from_root(tree->root);
+    _huff_tree_print_from_root(tree->root, 0);
     return 0;
 }
 

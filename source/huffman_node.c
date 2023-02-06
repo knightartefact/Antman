@@ -19,7 +19,7 @@ int huff_node_init(huff_node_t* node)
     return 0;
 }
 
-huff_node_t* huff_node_create(uint64_t occurence, char value, huff_node_t* left, huff_node_t* right)
+huff_node_t* huff_node_create(uint64_t occurence, uint8_t value, huff_node_t* left, huff_node_t* right)
 {
     huff_node_t* node = malloc(sizeof(huff_node_t));
 
@@ -59,4 +59,9 @@ int huff_node_comp(const void *lhs, const void *rhs)
 
 void huff_node_destroy(void *node)
 {
+}
+
+bool huff_node_is_leaf(huff_node_t *node)
+{
+    return (!node->left && !node->right);
 }

@@ -20,7 +20,7 @@ struct file_io_s
     size_t buf_size;
 };
 
-file_io_t* file_io_create(void);
+file_io_t* file_io_create(char *filepath);
 FILE* file_io_open_file(char *filepath, char *modes);
 int file_io_get_size(FILE* file);
 uint8_t *file_io_read_file(FILE* file);
