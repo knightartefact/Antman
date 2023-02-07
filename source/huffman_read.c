@@ -10,38 +10,27 @@
 #include "huffman_tree.h"
 #include "stack.h"
 
-buffer_t *huffman_read_file(bitstream_t *stream, huff_tree_t *tree, uint8_t l_offset)
+int huffman_read_file(bitstream_t *stream, huff_tree_t *tree, uint8_t l_offset, FILE *out)
 {
     int bit = 0;
-    size_t buf_size = stream->buffer.size * 8;
     huff_node_t *current_node = tree->root;
-    buffer_t *buffer = malloc(sizeof(buffer_t));
 
-    if (!buffer) {
-        perror("Allocating output buffer");
-        return NULL;
-    }
-    buffer->data = calloc(sizeof(uint8_t), buf_size);
-    if (!buffer->data) {
-        perror("Allocating buffer data");
-        return NULL;
-    }
-    buffer->size = buf_size;
-    buffer->pos = 0;
-    bitstream_read_file(stream);
+    if (bitstream_read_file(stream) == -1)
+        return -1;
     while ((bit = bitstream_read_bit(stream, l_offset)) != -1)
     {
-        if (bit == 1)
+        if (bit == 1) {
             current_node = current_node->right;
-        if (bit == 0)
+        }
+        if (bit == 0) {
             current_node = current_node->left;
+        }
         if (huff_node_is_leaf(current_node)) {
-            buffer->data[buffer->pos++] = current_node->value;
+            fwrite(&current_node->value, sizeof(uint8_t), 1, out);
             current_node = tree->root;
         }
     }
-    buffer->data[buffer->pos--] = 0;
-    return buffer;
+    return 0;
 }
 
 int huffman_read_header(FILE *file, f_header_data_t *data)
@@ -75,7 +64,7 @@ int huffman_rebuild_tree(f_header_data_t *data, huff_tree_t *tree)
             continue;
         }
         if(data->raw_tree[i] == '0') {
-            if (stack->top == 1) {
+            if (stack->top == 0) {
                 break;
             }
             huff_node_t *lvalue = stack_pop(stack);
@@ -87,7 +76,7 @@ int huffman_rebuild_tree(f_header_data_t *data, huff_tree_t *tree)
             continue;
         }
     }
-    if (stack->top > 1) {
+    if (stack->top > 0) {
         fprintf(stderr, "Error: stack is not of size 1, after rebuilding tree\n");
         return -1;
     }

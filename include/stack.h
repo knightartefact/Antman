@@ -15,7 +15,7 @@
 typedef struct stack_s stack_t;
 
 struct stack_s {
-    size_t top;
+    int64_t top;
     size_t size;
     huff_node_t **data;
 };

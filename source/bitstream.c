@@ -12,19 +12,24 @@
 
 int bitstream_read_file(bitstream_t *stream)
 {
-    size_t file_size = file_io_get_size(stream->file);
-    uint8_t *buffer = NULL;
+    file_io_t *io = file_io_create();
 
-    buffer = file_io_read_file(stream->file);
-    if (!buffer) {
+    io->file_ptr = stream->file;
+    file_io_read_file(io);
+
+    if (!io->file_buffer)
+        return -1;
+    stream->buffer.data = calloc(sizeof(uint8_t), io->buf_size);
+    if (!stream->buffer.data) {
+        perror("Allocating bitstream buffer");
         return -1;
     }
-    if (stream->buffer.data)
-        free(stream->buffer.data);
-    stream->buffer.data = buffer;
-    stream->buffer.size = file_size;
+    memmove(stream->buffer.data, io->file_buffer, sizeof(uint8_t) * io->buf_size);
+    stream->buffer.size = io->buf_size;
     stream->buffer.pos = 0;
     stream->buffer.bit_pos = (uint8_t)(sizeof(uint8_t) * 8);
+    io->file_ptr = NULL;
+    file_io_free(&io);
     return 0;
 }
 
@@ -62,15 +67,15 @@ bitstream_t *bitstream_create(char *filename, char *mode)
         bitstream_init(bitstream, NULL, mode);
         return bitstream;
     }
+    if (!bitstream) {
+        fclose(file);
+        perror("Bitstream allocation");
+        return NULL;
+    }
     file = fopen(filename, mode);
     if (!file) {
         free(bitstream);
         perror(filename);
-        return NULL;
-    }
-    if (!bitstream) {
-        fclose(file);
-        perror("Bitstream allocation");
         return NULL;
     }
     bitstream_init(bitstream, file, mode);
@@ -80,7 +85,8 @@ bitstream_t *bitstream_create(char *filename, char *mode)
 void bitstream_destroy(bitstream_t **stream)
 {
     bitstream_flush(*stream);
-    fclose((*stream)->file);
+    if ((*stream)->file)
+        fclose((*stream)->file);
     if ((*stream)->buffer.data)
         free((*stream)->buffer.data);
     free(*stream);

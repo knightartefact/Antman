@@ -20,10 +20,10 @@ struct file_io_s
     size_t buf_size;
 };
 
-file_io_t* file_io_create(char *filepath, char *modes);
+file_io_t* file_io_create(void);
 FILE* file_io_open_file(char *filepath, char *modes);
 int file_io_get_size(FILE* file);
-uint8_t *file_io_read_file(FILE* file);
+int file_io_read_file(file_io_t* file);
 void file_io_init(file_io_t* file_io);
 int file_io_load_file(char* filepath, char *modes, file_io_t* file_io_out);
 void file_io_free(file_io_t **file_io);

@@ -26,36 +26,44 @@ FILE* file_io_open_file(char *filepath, char *modes)
 int file_io_get_size(FILE* file)
 {
     int size = 0;
-    size_t current_pos = ftell(file);
 
-    fseek(file, current_pos, SEEK_END);
+    fseek(file, 0, SEEK_END);
     size = ftell(file);
-    fseek(file, current_pos, SEEK_SET);
+    fseek(file, 0, SEEK_SET);
     return size;
 }
 
-uint8_t *file_io_read_file(FILE* file)
+int file_io_read_file(file_io_t* file)
 {
-    size_t file_size = file_io_get_size(file);
-    uint8_t* buffer = malloc(sizeof(uint8_t) * (file_size + 1));
     size_t bytes_read = 0;
+    size_t buf_read_size = 64;
+    size_t buf_size = 0;
+    size_t buf_max_size = buf_read_size;
+    uint8_t* buffer = malloc(sizeof(uint8_t) * (buf_read_size + 1));
 
     if (!buffer)
-    {
-        perror("Couldn't allocate file buffer memory");
-        return NULL;
-    }
-    bytes_read = fread(buffer, sizeof(uint8_t), file_size, file);
-    if (bytes_read != file_size)
-    {
-        fprintf(stderr, "Read %ld bytes: ", bytes_read);
-        perror("couldn't read file in it's entirity");
-    }
-    buffer[file_size] = 0;
-    return buffer;
+        return -1;
+    do {
+        bytes_read = fread(buffer + buf_size, sizeof(uint8_t), buf_read_size, file->file_ptr);
+        buf_size += bytes_read;
+
+        if (buf_size >= buf_max_size - 1) {
+            uint8_t *temp = realloc(buffer, (buf_max_size * 2));
+            if (!temp)
+                return -1;
+            buffer = temp;
+            buf_max_size = buf_max_size * 2;
+        }
+
+    } while (bytes_read != 0);
+
+    buffer[buf_size] = 0;
+    file->buf_size = buf_size;
+    file->file_buffer = buffer;
+    return buf_size;
 }
 
-file_io_t* file_io_create(char *filepath, char *modes)
+file_io_t* file_io_create()
 {
     file_io_t* file_io = malloc(sizeof(file_io_t));
 
@@ -65,11 +73,6 @@ file_io_t* file_io_create(char *filepath, char *modes)
         return NULL;
     }
     file_io_init(file_io);
-    if (filepath == NULL) {
-        return file_io;
-    }
-    if (file_io_load_file(filepath, modes, file_io))
-        return NULL;
     return file_io;
 }
 
@@ -83,25 +86,17 @@ void file_io_init(file_io_t* file_io)
 
 int file_io_load_file(char* filepath, char *modes, file_io_t* io_out)
 {
-    if (io_out->file_buffer) {
-        fclose(io_out->file_ptr);
+    if (io_out->file_buffer)
         free(io_out->file_buffer);
+    if (io_out->file_ptr)
+        fclose(io_out->file_ptr);
+    if (io_out->filepath)
         free(io_out->filepath);
-        file_io_init(io_out);
-    }
+    file_io_init(io_out);
     io_out->filepath = strdup(filepath);
     io_out->file_ptr = file_io_open_file(filepath, modes);
     if (!io_out->file_ptr || !io_out->filepath)
-    {
         return -1;
-    }
-    io_out->file_buffer = file_io_read_file(io_out->file_ptr);
-    io_out->buf_size = file_io_get_size(io_out->file_ptr);
-    if (!io_out->file_buffer)
-    {
-        fclose(io_out->file_ptr);
-        return -1;
-    }
     return 0;
 }
 
@@ -109,7 +104,9 @@ void file_io_free(file_io_t **file_io)
 {
     if ((*file_io)->file_ptr)
         fclose((*file_io)->file_ptr);
-    free((*file_io)->filepath);
-    free((*file_io)->file_buffer);
+    if ((*file_io)->filepath)
+        free((*file_io)->filepath);
+    if ((*file_io)->file_buffer)
+        free((*file_io)->file_buffer);
     free(*file_io);
 }
