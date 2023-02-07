@@ -42,14 +42,17 @@ static file_io_t *huffman_generate_file_tree(huff_tree_t *tree)
 {
     char *temp_file_name = "temp_header.temp";
     FILE *temp_file = fopen(temp_file_name, "wb");
-    file_io_t *io = file_io_create(temp_file_name);
+    file_io_t *io = file_io_create(NULL, "rb");
 
-    _huffman_generate_file_tree_rec(tree->root, temp_file);
-    fclose(temp_file);
+    if (!temp_file) {
+        perror(temp_file_name);
+        return NULL;
+    }
     if (!io)
         return NULL;
-    file_io_load_file(temp_file_name, io);
-    if (!io->file_buffer)
+    _huffman_generate_file_tree_rec(tree->root, temp_file);
+    fclose(temp_file);
+    if (file_io_load_file(temp_file_name, "rb", io) == -1)
         return NULL;
     return io;
 }
@@ -80,6 +83,9 @@ int huffman_write_file(char *filename, GList_t *codes, file_io_t *input, huff_tr
 {
     bitstream_t *stream = bitstream_create(filename, "wb");
 
+    if (!stream)
+        return -1;
+    bitstream_read_file(stream);
     huffman_write_file_header(stream, codes, input, tree);
     for (size_t index = 0; input->file_buffer[index]; index++) {
         char *compressed = huffman_get_code(input->file_buffer[index], codes);

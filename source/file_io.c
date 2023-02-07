@@ -26,18 +26,19 @@ FILE* file_io_open_file(char *filepath, char *modes)
 int file_io_get_size(FILE* file)
 {
     int size = 0;
+    size_t current_pos = ftell(file);
 
-    fseek(file, 0, SEEK_END);
+    fseek(file, current_pos, SEEK_END);
     size = ftell(file);
-    fseek(file, 0, SEEK_SET);
+    fseek(file, current_pos, SEEK_SET);
     return size;
 }
 
 uint8_t *file_io_read_file(FILE* file)
 {
-    int file_size = file_io_get_size(file);
+    size_t file_size = file_io_get_size(file);
     uint8_t* buffer = malloc(sizeof(uint8_t) * (file_size + 1));
-    int bytes_read = 0;
+    size_t bytes_read = 0;
 
     if (!buffer)
     {
@@ -47,13 +48,14 @@ uint8_t *file_io_read_file(FILE* file)
     bytes_read = fread(buffer, sizeof(uint8_t), file_size, file);
     if (bytes_read != file_size)
     {
-        perror("Couldn't read file in it's entirity");
+        fprintf(stderr, "Read %ld bytes: ", bytes_read);
+        perror("couldn't read file in it's entirity");
     }
     buffer[file_size] = 0;
     return buffer;
 }
 
-file_io_t* file_io_create(char *filepath)
+file_io_t* file_io_create(char *filepath, char *modes)
 {
     file_io_t* file_io = malloc(sizeof(file_io_t));
 
@@ -66,7 +68,7 @@ file_io_t* file_io_create(char *filepath)
     if (filepath == NULL) {
         return file_io;
     }
-    if (file_io_load_file(filepath, file_io))
+    if (file_io_load_file(filepath, modes, file_io))
         return NULL;
     return file_io;
 }
@@ -79,7 +81,7 @@ void file_io_init(file_io_t* file_io)
     file_io->buf_size = 0;
 }
 
-int file_io_load_file(char* filepath, file_io_t* io_out)
+int file_io_load_file(char* filepath, char *modes, file_io_t* io_out)
 {
     if (io_out->file_buffer) {
         fclose(io_out->file_ptr);
@@ -88,7 +90,7 @@ int file_io_load_file(char* filepath, file_io_t* io_out)
         file_io_init(io_out);
     }
     io_out->filepath = strdup(filepath);
-    io_out->file_ptr = file_io_open_file(filepath, "r");
+    io_out->file_ptr = file_io_open_file(filepath, modes);
     if (!io_out->file_ptr || !io_out->filepath)
     {
         return -1;

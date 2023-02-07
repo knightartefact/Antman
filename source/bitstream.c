@@ -10,24 +10,21 @@
 #include "bitstream.h"
 #include "file_io.h"
 
-static int bitstream_read_file(bitstream_t *stream)
+int bitstream_read_file(bitstream_t *stream)
 {
-    file_io_t* io = file_io_create(NULL);
     size_t file_size = file_io_get_size(stream->file);
     uint8_t *buffer = NULL;
 
-    if (!io)
-        return -1;
     buffer = file_io_read_file(stream->file);
     if (!buffer) {
-        file_io_free(&io);
         return -1;
     }
+    if (stream->buffer.data)
+        free(stream->buffer.data);
     stream->buffer.data = buffer;
     stream->buffer.size = file_size;
     stream->buffer.pos = 0;
     stream->buffer.bit_pos = (uint8_t)(sizeof(uint8_t) * 8);
-    file_io_free(&io);
     return 0;
 }
 
@@ -46,7 +43,6 @@ static int bitstream_init(bitstream_t *stream, FILE *file, char *mode)
             break;
         case 'r':
             stream->mode = FILE_READ;
-            read_result = bitstream_read_file(stream);
             break;
         default:
             stream->mode = UNKNOWN_MODE;
@@ -59,9 +55,14 @@ static int bitstream_init(bitstream_t *stream, FILE *file, char *mode)
 
 bitstream_t *bitstream_create(char *filename, char *mode)
 {
-    FILE *file = fopen(filename, mode);
     bitstream_t *bitstream = malloc(sizeof(bitstream_t));
+    FILE *file = NULL;
 
+    if (!filename) {
+        bitstream_init(bitstream, NULL, mode);
+        return bitstream;
+    }
+    file = fopen(filename, mode);
     if (!file) {
         free(bitstream);
         perror(filename);
@@ -83,6 +84,20 @@ void bitstream_destroy(bitstream_t **stream)
     if ((*stream)->buffer.data)
         free((*stream)->buffer.data);
     free(*stream);
+}
+
+int bitstream_load_from_file(bitstream_t *stream, FILE *file)
+{
+    if (stream->file)
+        fclose(file);
+    if (stream->buffer.data)
+        free(stream->buffer.data);
+    stream->file = file;
+    stream->buffer.data = NULL;
+    stream->buffer.bit_pos = stream->chunk_size;
+    stream->buffer.pos = 0;
+    stream->buffer.size = 0;
+    return 0;
 }
 
 int bitstream_write_bit(bitstream_t *stream, bool bit)

@@ -42,6 +42,8 @@ struct bitstream_s {
 
 bitstream_t *bitstream_create(char *filename, char *mode);
 void bitstream_destroy(bitstream_t **stream);
+int bitstream_read_file(bitstream_t *stream);
+int bitstream_load_from_file(bitstream_t *stream, FILE *file);
 int bitstream_write_bit(bitstream_t *stream, bool bit);
 int bitstream_read_bit(bitstream_t *stream, uint8_t l_offset);
 void bitstream_flush(bitstream_t *stream);

@@ -21,7 +21,8 @@ struct f_header_data_s {
     uint8_t *raw_tree;
 };
 
-int huffman_read_file(char *filename);
-int huffman_read_header(char *filename, f_header_data_t *data);
+buffer_t *huffman_read_file(bitstream_t *stream, huff_tree_t *tree, uint8_t l_offset);
+int huffman_read_header(FILE *file, f_header_data_t *data);
+int huffman_rebuild_tree(f_header_data_t *data, huff_tree_t *tree);
 
 #endif /* !HUFFMAN_READ_H_ */
