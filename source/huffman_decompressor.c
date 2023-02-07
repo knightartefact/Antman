@@ -34,7 +34,7 @@ int huffman_decompressor(char *i_filename, char *o_filename)
     if (file_io_load_file(o_filename, "wb", o_file) == -1) {
         return -1;
     }
-    if (huffman_read_file(stream, tree, h_data.last_bit_off, o_file->file_ptr) == -1)
+    if (huffman_read_file(stream, tree, &h_data, o_file->file_ptr) == -1)
         return -1;
     file_io_free(&i_file);
     file_io_free(&o_file);

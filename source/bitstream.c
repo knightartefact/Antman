@@ -129,8 +129,7 @@ int bitstream_read_bit(bitstream_t *stream, uint8_t l_offset)
     if (stream->buffer.pos >= stream->buffer.size) {
         return -1;
     }
-    if (stream->buffer.pos >= stream->buffer.size - 2)
-        if (stream->buffer.bit_pos == 8 - l_offset)
+    if (stream->buffer.pos >= stream->buffer.size - 1 && stream->buffer.bit_pos == l_offset)
             return -1;
     if (stream->buffer.bit_pos == 0) {
         stream->buffer.bit_pos = (sizeof(uint8_t) * 8);

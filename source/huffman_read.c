@@ -10,15 +10,18 @@
 #include "huffman_tree.h"
 #include "stack.h"
 
-int huffman_read_file(bitstream_t *stream, huff_tree_t *tree, uint8_t l_offset, FILE *out)
+int huffman_read_file(bitstream_t *stream, huff_tree_t *tree, f_header_data_t *data, FILE *out)
 {
     int bit = 0;
     huff_node_t *current_node = tree->root;
+    size_t writte_bits = 0;
 
     if (bitstream_read_file(stream) == -1)
         return -1;
-    while ((bit = bitstream_read_bit(stream, l_offset)) != -1)
+    while ((bit = bitstream_read_bit(stream, 0)) != -1)
     {
+        if (writte_bits >= data->original_size)
+            break;
         if (bit == 1) {
             current_node = current_node->right;
         }
@@ -28,6 +31,7 @@ int huffman_read_file(bitstream_t *stream, huff_tree_t *tree, uint8_t l_offset, 
         if (huff_node_is_leaf(current_node)) {
             fwrite(&current_node->value, sizeof(uint8_t), 1, out);
             current_node = tree->root;
+            writte_bits += 1;
         }
     }
     return 0;
@@ -41,7 +45,7 @@ int huffman_read_header(FILE *file, f_header_data_t *data)
     read_bytes += sizeof(size_t) * fread(&data->header_size, sizeof(size_t), 1, file);
     read_bytes += fread(&data->last_bit_off, sizeof(uint8_t), 1, file);
 
-    data->raw_tree = calloc(data->header_size + 1, sizeof(uint8_t));
+    data->raw_tree = calloc(data->header_size, sizeof(uint8_t));
     if (!data->raw_tree) {
         perror("Error allocating header raw tree");
         return -1;
